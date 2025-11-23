@@ -133,3 +133,9 @@ if (isset($_POST['update'])) {
 </body>
 
 </html>
+
+<!-- Feather Icons -->
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script>
+feather.replace(); // <---- THIS IS KEY to make icons appear
+</script>
