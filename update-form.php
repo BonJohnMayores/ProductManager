@@ -63,7 +63,7 @@ if (isset($_POST['update'])) {
                             <div class="form-group col-md-3">
                                 <label for="pcode">Product Code</label>
                                 <input type="text" class="form-control" id="pcode" name="pcode"
-                                    value="<?= htmlspecialchars($product['p_code']) ?>" required>
+                                    value="<?= htmlspecialchars($product['p_code']) ?>" readonly>
                             </div>
                         </div>
 
