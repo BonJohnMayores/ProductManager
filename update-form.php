@@ -10,12 +10,23 @@ if (!isset($_GET['pcode'])) {
 
 $pcode = $_GET['pcode'];
 
-// Get product data
+// Get initial product data
 $conn = Connect();
-$query = "SELECT * FROM product WHERE p_code='$pcode'";
-$result = $conn->query($query);
+$query = "SELECT * FROM product WHERE p_code = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("s", $pcode);
+$stmt->execute();
+$result = $stmt->get_result();
 $product = $result->fetch_assoc();
+$stmt->close();
 $conn->close();
+
+if (!$product) {
+    $_SESSION['action'] = 'error';
+    $_SESSION['msg'] = 'Product not found!';
+    header("Location: products.php");
+    exit;
+}
 
 if (isset($_POST['update'])) {
     $desc = $_POST['desc'];
@@ -32,19 +43,14 @@ if (isset($_POST['update'])) {
 ?>
 <!doctype html>
 <html lang="en">
-
 <?php include 'components/head.php'; ?>
 
 <body>
-
     <?php include 'components/nav-bar.php'; ?>
 
     <div class="container-fluid">
         <div class="row">
-
-            <!-- Sidebar -->
             <?php include 'components/side-bar.php'; ?>
-
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
 
                 <div
@@ -53,39 +59,37 @@ if (isset($_POST['update'])) {
                 </div>
 
                 <div class="col-md-6">
-                    <form method="post">
-
+                    <form method="post" id="productForm">
                         <div class="form-row">
                             <div class="form-group col-md-3">
-                                <label for="code">Product Code</label>
-                                <input type="text" class="form-control" name="pcode" value="<?= $product['p_code'] ?>"
-                                    readonly>
+                                <label for="pcode">Product Code</label>
+                                <input type="text" class="form-control" id="pcode" name="pcode"
+                                    value="<?= htmlspecialchars($product['p_code']) ?>" readonly>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label for="description">Description</label>
-                            <input type="text" class="form-control" name="desc" value="<?= $product['p_descript'] ?>"
-                                required>
+                            <label for="desc">Description</label>
+                            <input type="text" class="form-control" id="desc" name="desc"
+                                value="<?= htmlspecialchars($product['p_descript']) ?>" required>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group col-md-3">
                                 <label for="price">Price</label>
-                                <input type="text" class="form-control" name="price" value="<?= $product['p_price'] ?>"
-                                    required>
+                                <input type="text" class="form-control" id="price" name="price"
+                                    value="<?= htmlspecialchars($product['p_price']) ?>" required>
                             </div>
 
                             <div class="form-group col-md-2">
                                 <label for="stocks">Stocks</label>
-                                <input type="text" class="form-control" name="stocks" value="<?= $product['p_qoh'] ?>"
-                                    required>
+                                <input type="text" class="form-control" id="stocks" name="stocks"
+                                    value="<?= htmlspecialchars($product['p_qoh']) ?>" required>
                             </div>
                         </div>
 
-                        <button type="reset" class="btn btn-secondary">Reset</button>
+                        <button type="button" class="btn btn-secondary" id="resetBtn">Reset</button>
                         <button type="submit" class="btn btn-primary" name="update">Update</button>
-
                     </form>
                 </div>
 
@@ -93,16 +97,39 @@ if (isset($_POST['update'])) {
         </div>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-    </script>
     <script>
-    window.jQuery || document.write('<script src="../assets/js/vendor/jquery.slim.min.js"><\/script>')
-    </script>
-    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const resetBtn = document.getElementById('resetBtn');
+        const descInput = document.getElementById('desc');
+        const priceInput = document.getElementById('price');
+        const stocksInput = document.getElementById('stocks');
+        const pcode = document.getElementById('pcode').value;
 
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons@4.28.0/dist/feather.min.js"></script>
-    <script src="js/dashboard.js"></script>
+        resetBtn.addEventListener('click', function() {
+            // Fetch latest product data from get_product.php
+            fetch('./get_product.php?pcode=' + encodeURIComponent(pcode))
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response not OK: ' + response
+                    .status);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        descInput.value = data.desc;
+                        priceInput.value = data.price;
+                        stocksInput.value = data.stocks;
+                    }
+                })
+                .catch(err => {
+                    console.error('Fetch error:', err);
+                    alert(
+                        'Failed to fetch product data. Make sure get_product.php path is correct.');
+                });
+        });
+    });
+    </script>
 
 </body>
 
