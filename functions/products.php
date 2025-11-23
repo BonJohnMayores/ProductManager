@@ -66,22 +66,3 @@ function updateProduct($pcode, $desc, $price, $stocks) {
 
     return $result ? true : false;
 }
-
-function addOrder($cus_code, $inv_subtotal, $inv_tax, $inv_total) {
-    include 'connectdb.php';
-
-    $stmt = $mysqli->prepare("
-        INSERT INTO invoice (cus_code, inv_date, inv_subtotal, inv_tax, inv_total)
-        VALUES (?, NOW(), ?, ?, ?)
-    ");
-
-    if (!$stmt) return false;
-
-    $stmt->bind_param("sddd", $cus_code, $inv_subtotal, $inv_tax, $inv_total);
-
-    if ($stmt->execute()) {
-        return true;
-    }
-
-    return false;
-}

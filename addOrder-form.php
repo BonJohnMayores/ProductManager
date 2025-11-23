@@ -3,7 +3,7 @@ session_start();
 $title = 'Add Order';
 
 
-include 'functions/products.php';
+require_once 'functions/orders.php';
 
 // Fetch customers for dropdown
 $customers = [];
@@ -22,7 +22,7 @@ if (isset($_POST['insert'])) {
     $inv_total = $_POST['inv_total'];
 
     if (addOrder($cus_code, $inv_subtotal, $inv_tax, $inv_total)) {
-        $_SESSION['action'] = 'Add';
+        $_SESSION['action'] = 'AddOrder';
         $_SESSION['msg'] = 'Order added successfully!';
         header("Location: orders.php");
         exit();

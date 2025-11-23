@@ -3,6 +3,11 @@ session_start();
 $title = 'Products';
 include 'functions/products.php';
 
+// Only show product-related messages
+if (isset($_SESSION['action']) && $_SESSION['action'] !== 'Add' && $_SESSION['action'] !== 'update' && $_SESSION['action'] !== 'delete') {
+    unset($_SESSION['msg'], $_SESSION['action']);
+}
+
 // DELETE Product
 if (isset($_POST['delete'])) {
     $pcode = $_POST['pcode'];

@@ -1,4 +1,6 @@
 <?php
+session_start(); // <--- Add this to access $_SESSION
+
 $title = 'Orders';
 
 require_once __DIR__ . '/functions/connectdb.php';
@@ -6,6 +8,26 @@ require_once __DIR__ . '/functions/connectdb.php';
 include __DIR__ . '/components/head.php';
 include __DIR__ . '/components/nav-bar.php';
 include __DIR__ . '/components/side-bar.php';
+
+// Only show product-related messages
+if (isset($_SESSION['action']) && $_SESSION['action'] !== 'AddOrder') {
+    unset($_SESSION['msg'], $_SESSION['action']);
+}
+
+// Insert order
+if (isset($_POST['insert'])) {
+    $cus_code = $_POST['cus_code'];
+    $inv_subtotal = $_POST['inv_subtotal'];
+    $inv_tax = $_POST['inv_tax'];
+    $inv_total = $_POST['inv_total'];
+
+    if (addOrder($cus_code, $inv_subtotal, $inv_tax, $inv_total)) {
+        $_SESSION['action'] = 'AddOrder';
+        $_SESSION['msg'] = 'Order added successfully!';
+        header("Location: orders.php");
+        exit();
+    }
+}
 
 function formatInvoiceDate($datetimeString) {
     if (!$datetimeString) return '';
@@ -23,8 +45,15 @@ function formatInvoiceDate($datetimeString) {
         <a href="addOrder-form.php" class="btn btn-primary btn-sm d-flex align-items-center">
             <span data-feather="plus" class="me-1"></span> Add Order
         </a>
-
     </div>
+
+    <!-- Display success message -->
+    <?php if (!empty($_SESSION['msg'])): ?>
+    <div class="alert alert-success">
+        <?= htmlspecialchars($_SESSION['msg']); ?>
+    </div>
+    <?php unset($_SESSION['msg']); // remove message after displaying ?>
+    <?php endif; ?>
 
     <div class="table-responsive">
         <table class="table table-striped table-hover">
@@ -43,7 +72,6 @@ function formatInvoiceDate($datetimeString) {
                 if (!isset($mysqli) || !($mysqli instanceof mysqli)) {
                     echo '<tr><td colspan="6" class="text-danger">Database connection error.</td></tr>';
                 } else {
-
                     $sql = "
                         SELECT 
                             i.inv_number,
@@ -66,7 +94,6 @@ function formatInvoiceDate($datetimeString) {
                             echo '<tr><td colspan="6" class="text-center">No orders found.</td></tr>';
                         } else {
                             while ($row = $result->fetch_assoc()) {
-                                
                                 $invNumber = htmlspecialchars($row['inv_number']);
                                 $fullname = trim(($row['cus_fname'] ?? '') . ' ' . ($row['cus_lname'] ?? ''));
                                 if ($fullname == '') $fullname = "Unknown Customer";
