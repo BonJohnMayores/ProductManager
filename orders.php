@@ -16,13 +16,14 @@ function formatInvoiceDate($datetimeString) {
 ?>
 
 <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-    <div
-        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap 
+        align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Orders</h1>
-        <!-- Example icon usage -->
-        <button class="btn btn-sm btn-outline-secondary">
-            <span data-feather="plus"></span> Add Order
-        </button>
+
+        <a href="addOrder-form.php" class="btn btn-primary btn-sm d-flex align-items-center">
+            <span data-feather="plus" class="me-1"></span> Add Order
+        </a>
+
     </div>
 
     <div class="table-responsive">
@@ -40,7 +41,7 @@ function formatInvoiceDate($datetimeString) {
             <tbody>
                 <?php
                 if (!isset($mysqli) || !($mysqli instanceof mysqli)) {
-                    echo '<tr><td colspan="6" class="text-danger">Database connection failed: $mysqli is not defined.</td></tr>';
+                    echo '<tr><td colspan="6" class="text-danger">Database connection error.</td></tr>';
                 } else {
 
                     $sql = "
@@ -65,28 +66,27 @@ function formatInvoiceDate($datetimeString) {
                             echo '<tr><td colspan="6" class="text-center">No orders found.</td></tr>';
                         } else {
                             while ($row = $result->fetch_assoc()) {
+                                
                                 $invNumber = htmlspecialchars($row['inv_number']);
-                                $custFull  = trim(($row['cus_fname'] ?? '') . ' ' . ($row['cus_lname'] ?? ''));
-                                if ($custFull === '') $custFull = "Unknown Customer";
+                                $fullname = trim(($row['cus_fname'] ?? '') . ' ' . ($row['cus_lname'] ?? ''));
+                                if ($fullname == '') $fullname = "Unknown Customer";
 
-                                $dateStr = formatInvoiceDate($row['inv_date']);
-
+                                $date = formatInvoiceDate($row['inv_date']);
                                 $subtotal = number_format($row['inv_subtotal'], 2);
-                                $tax      = number_format($row['inv_tax'], 2);
-                                $total    = number_format($row['inv_total'], 2);
+                                $tax = number_format($row['inv_tax'], 2);
+                                $total = number_format($row['inv_total'], 2);
 
                                 echo "
                                 <tr>
                                     <td>{$invNumber}</td>
-                                    <td>{$custFull}</td>
-                                    <td>{$dateStr}</td>
+                                    <td>{$fullname}</td>
+                                    <td>{$date}</td>
                                     <td class='text-right'>{$subtotal}</td>
                                     <td class='text-right'>{$tax}</td>
                                     <td class='text-right'>{$total}</td>
                                 </tr>";
                             }
                         }
-                        $result->free();
                     } else {
                         echo '<tr><td colspan="6" class="text-danger">Query error: ' . $mysqli->error . '</td></tr>';
                     }
@@ -97,10 +97,7 @@ function formatInvoiceDate($datetimeString) {
     </div>
 </main>
 
-
-
-<!-- Feather Icons -->
 <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
 <script>
-feather.replace(); // <---- THIS IS KEY to make icons appear
+feather.replace();
 </script>
