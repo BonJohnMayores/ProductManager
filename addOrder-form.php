@@ -2,9 +2,19 @@
 session_start();
 $title = 'Add Order';
 
+
 include 'functions/products.php';
 
+// Fetch customers for dropdown
+$customers = [];
+$cusResult = $mysqli->query("SELECT cus_code, cus_fname, cus_lname FROM customer ORDER BY cus_fname");
+if ($cusResult) {
+    while ($row = $cusResult->fetch_assoc()) {
+        $customers[] = $row;
+    }
+}
 
+// Insert order
 if (isset($_POST['insert'])) {
     $cus_code = $_POST['cus_code'];
     $inv_subtotal = $_POST['inv_subtotal'];
@@ -42,23 +52,32 @@ if (isset($_POST['insert'])) {
                     <form method="post">
 
                         <div class="form-group">
-                            <label>Customer Code</label>
-                            <input type="text" class="form-control" name="cus_code" required>
+                            <label>Customer</label>
+                            <select name="cus_code" class="form-control" required>
+                                <option value="">-- Select Customer --</option>
+                                <?php foreach($customers as $c): ?>
+                                <option value="<?= htmlspecialchars($c['cus_code']) ?>">
+                                    <?= htmlspecialchars($c['cus_fname'] . ' ' . $c['cus_lname']) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
 
                         <div class="form-group">
                             <label>Subtotal</label>
-                            <input type="number" step="0.01" class="form-control" name="inv_subtotal" required>
+                            <input type="number" step="0.01" class="form-control" name="inv_subtotal" id="inv_subtotal"
+                                required>
                         </div>
 
                         <div class="form-group">
                             <label>Tax</label>
-                            <input type="number" step="0.01" class="form-control" name="inv_tax" required>
+                            <input type="number" step="0.01" class="form-control" name="inv_tax" id="inv_tax" required>
                         </div>
 
                         <div class="form-group">
                             <label>Total</label>
-                            <input type="number" step="0.01" class="form-control" name="inv_total" required>
+                            <input type="number" step="0.01" class="form-control" name="inv_total" id="inv_total"
+                                required readonly>
                         </div>
 
                         <button type="reset" class="btn btn-secondary">Reset</button>
@@ -66,14 +85,30 @@ if (isset($_POST['insert'])) {
 
                     </form>
                 </div>
-            </main>
 
+            </main>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <script>
     feather.replace();
+    </script>
+
+    <!-- Auto-calculate Total -->
+    <script>
+    const subtotalInput = document.getElementById('inv_subtotal');
+    const taxInput = document.getElementById('inv_tax');
+    const totalInput = document.getElementById('inv_total');
+
+    function calculateTotal() {
+        const subtotal = parseFloat(subtotalInput.value) || 0;
+        const tax = parseFloat(taxInput.value) || 0;
+        totalInput.value = (subtotal + tax).toFixed(2);
+    }
+
+    subtotalInput.addEventListener('input', calculateTotal);
+    taxInput.addEventListener('input', calculateTotal);
     </script>
 
 </body>
