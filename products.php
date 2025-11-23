@@ -74,11 +74,13 @@ if (isset($_POST['search'])) {
                     <i class="fas fa-plus-square"></i> New Product
                 </a>
 
-                <?php if (isset($_SESSION['action'])) { ?>
+                <!-- Display success message -->
+                <?php if (!empty($_SESSION['msg'])): ?>
                 <div class="alert alert-success mt-3 col-6">
-                    <?= $_SESSION['msg'] ?>
+                    <?= htmlspecialchars($_SESSION['msg']); ?>
                 </div>
-                <?php unset($_SESSION['action']); } ?>
+                <?php unset($_SESSION['msg']); // remove message after displaying ?>
+                <?php endif; ?>
 
                 <!-- Product Table -->
                 <div class="table-responsive">

@@ -14,20 +14,6 @@ if (isset($_SESSION['action']) && $_SESSION['action'] !== 'AddOrder') {
     unset($_SESSION['msg'], $_SESSION['action']);
 }
 
-// Insert order
-if (isset($_POST['insert'])) {
-    $cus_code = $_POST['cus_code'];
-    $inv_subtotal = $_POST['inv_subtotal'];
-    $inv_tax = $_POST['inv_tax'];
-    $inv_total = $_POST['inv_total'];
-
-    if (addOrder($cus_code, $inv_subtotal, $inv_tax, $inv_total)) {
-        $_SESSION['action'] = 'AddOrder';
-        $_SESSION['msg'] = 'Order added successfully!';
-        header("Location: orders.php");
-        exit();
-    }
-}
 
 function formatInvoiceDate($datetimeString) {
     if (!$datetimeString) return '';
