@@ -10,7 +10,7 @@ if (!isset($_GET['pcode'])) {
 
 $pcode = $_GET['pcode'];
 
-// Get initial product data
+// Get product data from database
 $conn = Connect();
 $query = "SELECT * FROM product WHERE p_code = ?";
 $stmt = $conn->prepare($query);
@@ -52,7 +52,6 @@ if (isset($_POST['update'])) {
         <div class="row">
             <?php include 'components/side-bar.php'; ?>
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-
                 <div
                     class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">Update Product</h1>
@@ -92,7 +91,6 @@ if (isset($_POST['update'])) {
                         <button type="submit" class="btn btn-primary" name="update">Update</button>
                     </form>
                 </div>
-
             </main>
         </div>
     </div>
@@ -100,13 +98,15 @@ if (isset($_POST['update'])) {
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const resetBtn = document.getElementById('resetBtn');
-        const descInput = document.getElementById('desc');
-        const priceInput = document.getElementById('price');
-        const stocksInput = document.getElementById('stocks');
+        const desc = document.getElementById('desc');
+        const price = document.getElementById('price');
+        const stocks = document.getElementById('stocks');
         const pcode = document.getElementById('pcode').value;
 
         resetBtn.addEventListener('click', function() {
-            // Fetch latest product data from get_product.php
+            if (!confirm('Are you sure you want to reset? Unsaved changes will be lost.')) return;
+
+            // Fetch latest values from get_product.php
             fetch('./get_product.php?pcode=' + encodeURIComponent(pcode))
                 .then(response => {
                     if (!response.ok) throw new Error('Network response not OK: ' + response
@@ -117,15 +117,14 @@ if (isset($_POST['update'])) {
                     if (data.error) {
                         alert('Error: ' + data.error);
                     } else {
-                        descInput.value = data.desc;
-                        priceInput.value = data.price;
-                        stocksInput.value = data.stocks;
+                        desc.value = data.desc;
+                        price.value = data.price;
+                        stocks.value = data.stocks;
                     }
                 })
                 .catch(err => {
                     console.error('Fetch error:', err);
-                    alert(
-                        'Failed to fetch product data. Make sure get_product.php path is correct.');
+                    alert('Failed to fetch latest product data. Check get_product.php path.');
                 });
         });
     });

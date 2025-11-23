@@ -3,7 +3,7 @@ session_start();
 $title ='Products';
 include 'functions/products.php';
 
-// Optional: initial values for a new product (if you want defaults)
+// Initial default values for new product
 $initialPcode = '';
 $initialDesc  = '';
 $initialPrice = '';
@@ -74,7 +74,6 @@ if(isset($_POST['insert'])){
                         <button type="submit" class="btn btn-primary" name="insert">Save</button>
                     </form>
                 </div>
-
             </main>
         </div>
     </div>
@@ -82,25 +81,26 @@ if(isset($_POST['insert'])){
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const resetBtn = document.getElementById('resetBtn');
-        const pcodeInput = document.getElementById('pcode');
-        const descInput = document.getElementById('desc');
-        const priceInput = document.getElementById('price');
-        const stocksInput = document.getElementById('stocks');
+        const pcode = document.getElementById('pcode');
+        const desc = document.getElementById('desc');
+        const price = document.getElementById('price');
+        const stocks = document.getElementById('stocks');
 
-        // Save initial values from PHP
+        // Save initial values
         const initialValues = {
-            pcode: pcodeInput.value,
-            desc: descInput.value,
-            price: priceInput.value,
-            stocks: stocksInput.value
+            pcode: pcode.value,
+            desc: desc.value,
+            price: price.value,
+            stocks: stocks.value
         };
 
         resetBtn.addEventListener('click', function() {
-            // Restore initial values
-            pcodeInput.value = initialValues.pcode;
-            descInput.value = initialValues.desc;
-            priceInput.value = initialValues.price;
-            stocksInput.value = initialValues.stocks;
+            if (confirm('Are you sure you want to reset the form? Unsaved changes will be lost.')) {
+                pcode.value = initialValues.pcode;
+                desc.value = initialValues.desc;
+                price.value = initialValues.price;
+                stocks.value = initialValues.stocks;
+            }
         });
     });
     </script>
