@@ -63,7 +63,7 @@ if (isset($_POST['update'])) {
                             <div class="form-group col-md-3">
                                 <label for="pcode">Product Code</label>
                                 <input type="text" class="form-control" id="pcode" name="pcode"
-                                    value="<?= htmlspecialchars($product['p_code']) ?>" readonly>
+                                    value="<?= htmlspecialchars($product['p_code']) ?>" required>
                             </div>
                         </div>
 
@@ -110,7 +110,7 @@ if (isset($_POST['update'])) {
             fetch('./get_product.php?pcode=' + encodeURIComponent(pcode))
                 .then(response => {
                     if (!response.ok) throw new Error('Network response not OK: ' + response
-                    .status);
+                        .status);
                     return response.json();
                 })
                 .then(data => {
